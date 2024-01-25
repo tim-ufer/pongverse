@@ -1,23 +1,15 @@
-import os
-from time import sleep
 import numpy as np
 import curses
 
 
-def print_mat(mat):
-    for x in mat:
-        for y in x:
-            print(y, end='')
-        print()
+def refresh(stdscr, mat):
+    for i, x in enumerate(mat):
+        for j, y in enumerate(x):
+            stdscr.addstr(i, j, y, curses.A_NORMAL)
+    stdscr.refresh()
 
 
-def refresh(mat):
-    os.system('clear')
-    print_mat(mat)
-    # sleep(1)
-
-
-def main(*args):
+def main(stdscr):
     xs = 16
     ys = 41
     center_v = xs // 2
@@ -38,16 +30,11 @@ def main(*args):
     mat[center_v-1:center_v+1, ys-2] = paddle
     mat[center_v, center_h] = ball
     player_pos = center_v
-    # Set up curses to get live input
-    screen = curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-
     gameover = False
     while not gameover:
-        refresh(mat)
+        refresh(stdscr, mat)
         # action = input('Press k/j for up/down:\n')
-        action = screen.getkey()
+        action = stdscr.getkey()
         if action == 'k' and player_pos > 2:
             mat[player_pos, 1] = ' '
             mat[player_pos-2, 1] = paddle
@@ -56,13 +43,14 @@ def main(*args):
             mat[player_pos-1, 1] = ' '
             mat[player_pos+1, 1] = paddle
             player_pos += 1
+        # break
 
-    print()
-    
-    curses.nocbreak()
-    curses.echo()
-    curses.endwin()
+    # print()
+    # print(mat)
 
 
 if __name__ == "__main__":
-    curses.wrapper(main())
+    stdscr = curses.initscr()
+    curses.curs_set(False)
+    curses.wrapper(main)
+
